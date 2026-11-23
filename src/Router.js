@@ -17,6 +17,7 @@ import MemorySharing from "./Pages/Memory-Sharing";
 import TeamsPage from "./Pages/Teams-Page";
 import TeamDetailPage from "./Pages/TeamDetailPage";
 import TeamJoinForm from "./Pages/TeamJoinForm";
+import CommitteePage from "./Pages/Committee";
 
 import Login from "./Components/Login";
 import Signup from "./Components/Signup";
@@ -120,6 +121,10 @@ function Router() {
     {
       path: "teams/join",
       element: <TeamJoinForm />,
+    },
+    {
+      path: "teams/committee",
+      element: <CommitteePage />,
     },
     {
       path: "teams/:teamId",
