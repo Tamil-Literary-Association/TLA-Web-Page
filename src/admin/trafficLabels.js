@@ -61,6 +61,7 @@ const PAGES = [
   [/^\/books\/submit\/form$/, "Book submission form"],
   [/^\/teams$/, "Teams"],
   [/^\/teams\/join$/, "Join a team (form)"],
+  [/^\/teams\/committee$/, "Committee"],
   [/^\/members$/, "Members"],
   [/^\/seniors$/, "Seniors"],
   [/^\/history$/, "Our history"],
