@@ -12,6 +12,9 @@ import {
   FaExclamationTriangle,
   FaLightbulb,
   FaArrowRight,
+  FaArrowUp,
+  FaArrowDown,
+  FaInfoCircle,
 } from "react-icons/fa";
 
 import LotusDivider from "./LotusDivider";
@@ -271,9 +274,6 @@ function YearsEditor({ s, set }) {
 
   return (
     <div className="ts-items">
-      <p className="tj-muted ts-years-help">
-        The newest year shows first on the page as the current team. Phone numbers only appear for the current year.
-      </p>
       <div className="ts-years-actions">
         {current ? (
           <button type="button" className="tj-btn" onClick={() => setPanel(panel === "next" ? null : "next")}>
@@ -356,6 +356,20 @@ function YearsEditor({ s, set }) {
 }
 
 
+// One plain-language line per section type, shown at the top of an open
+// section so a first-time editor knows what to do there.
+const SECTION_HELP = {
+  text: "Write a few paragraphs about the team. Add a button only if you want visitors to go somewhere, like a registration form.",
+  years:
+    "One entry per year. The newest year is the current team. When a new year begins, press \"Start\" for the next year: the current team moves to the past years and you tick who carries on. Phone numbers are only shown for the current year.",
+  timeline: "Important moments in the team's history, one short line each. Use the arrows to put them in order.",
+  youtube: "On YouTube press Share → Copy, then paste the link below. You can paste several links at once.",
+  instagram: "On Instagram open the post, press ⋯ → Copy link, then paste it below. Posts and reels both work.",
+  competitions:
+    "Add each competition with its date. Before the date visitors see a countdown and the register button; afterwards, fill in the winners and the recording.",
+  gallery: "Drag photos here or press Upload. Big phone photos are fine - they're made smaller before uploading.",
+};
+
 function SectionBody({ s, set, onUpdate }) {
   switch (s.type) {
     case "text":
@@ -408,6 +422,98 @@ function HeroMini({ page }) {
         <strong>{page.title || "Team name"}</strong>
         {page.tagline && <span className="ts-hero-mini-tagline">{page.tagline}</span>}
         <SocialIcons links={socials} className="team-socials ts-hero-mini-socials" />
+      </div>
+    </div>
+  );
+}
+
+// ---- Guidance ---------------------------------------------------------------
+
+const GUIDE_KEY = "tla_admin_teams_guide_closed";
+
+function readGuideClosed() {
+  try {
+    return localStorage.getItem(GUIDE_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+function Guide({ who }) {
+  const [open, setOpen] = useState(() => !readGuideClosed());
+  const toggle = () => {
+    const next = !open;
+    setOpen(next);
+    try {
+      localStorage.setItem(GUIDE_KEY, next ? "0" : "1");
+    } catch {
+      /* private mode: just don't remember */
+    }
+  };
+  const admin = who.role === "admin";
+  return (
+    <section className={`ts-guide${open ? " is-open" : ""}`}>
+      <button type="button" className="ts-guide-toggle" onClick={toggle} aria-expanded={open}>
+        <span className="ts-guide-badge">?</span>
+        <span>
+          <b>New here? How to edit a team page</b>
+          <small>{open ? "Hide the guide" : "Show the 4-step guide"}</small>
+        </span>
+        <FaChevronDown className="ts-guide-chev" />
+      </button>
+      {open && (
+        <>
+          <ol className="ts-guide-steps">
+            <li>
+              <b>Choose the team</b> you want to change from the cards below.
+              {admin ? "" : " You only see the teams a main admin has given you."}
+            </li>
+            <li>
+              <b>Change the top of the page:</b> the team name, a short tagline, the logo and pictures, and links to the
+              team's social media. The preview next to it updates as you type.
+            </li>
+            <li>
+              <b>Change the sections</b> further down the page (About us, Team by year, videos, photos…). Click a section's
+              name to open it, or press <span className="ts-kbd"><FaPlus /> Add section</span> for a new one.
+            </li>
+            <li>
+              <b>Check, then Publish.</b> Press <span className="ts-kbd">Preview</span> to see the whole page as visitors
+              will. Nothing on the website changes until you press <span className="ts-kbd">Publish</span> at the bottom.
+            </li>
+          </ol>
+          <ul className="ts-guide-notes">
+            <li>
+              <FaLightbulb /> <b>Photos:</b> press <i>Upload</i> to pick one from your computer or phone, or paste a Google
+              Drive link. Drive photos must be shared as <i>"Anyone with the link"</i>, or visitors can't see them.
+            </li>
+            <li>
+              <FaLightbulb /> <b>YouTube &amp; Instagram:</b> copy the link with the app's Share button and paste it. Several
+              links at once is fine.
+            </li>
+            <li>
+              <FaLightbulb /> <b>Not published yet?</b> Your changes only live in this browser tab. If you close it or switch
+              team, you'll be asked before anything is thrown away.
+            </li>
+            {admin && (
+              <li>
+                <FaLightbulb /> <b>Hide or delete a team:</b> the <FaEye /> on a team card hides the whole team from visitors
+                (nothing is lost). The <FaTrashAlt /> deletes it for good and only appears on teams made with "New team".
+              </li>
+            )}
+          </ul>
+        </>
+      )}
+    </section>
+  );
+}
+
+function StepHead({ n, title, children }) {
+  return (
+    <div className="ts-stephead">
+      <span className="ts-stepnum">{n}</span>
+      <div>
+        <h2>{title}</h2>
+        {children && <p>{children}</p>}
       </div>
     </div>
   );
@@ -644,6 +750,10 @@ function TeamPagesStudio({ who }) {
   };
 
   const setHeader = (patch) => update((d) => ({ ...d, ...patch }));
+  const openPreview = () => {
+    setView("preview");
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
 
   return (
     <div className="frame-page admin-page">
@@ -672,6 +782,14 @@ function TeamPagesStudio({ who }) {
           </div>
         </div>
 
+        {view === "edit" && <Guide who={who} />}
+
+        <StepHead n={1} title="Choose a team">
+          {who.role === "admin"
+            ? "Click a team to edit its page. The eye shows whether visitors can see the team - click it to hide or show the whole team."
+            : "These are the teams you can edit. If one is missing, ask a main admin to add you to it."}
+        </StepHead>
+
         <div className="ts-teams" role="tablist" aria-label="Teams">
           {pages.map((p) => {
             const active = p.id === activeId;
@@ -693,9 +811,9 @@ function TeamPagesStudio({ who }) {
                 </span>
                 <small>
                   {visible} section{visible === 1 ? "" : "s"} ·{" "}
-                  {p.updatedAt ? `updated ${ago(p.updatedAt)}` : "default content"}
-                  {p.hidden ? " · hidden" : ""}
+                  {p.updatedAt ? `updated ${ago(p.updatedAt)}` : "not edited yet"}
                 </small>
+                {p.hidden && <span className="ts-team-hidden">Hidden from visitors</span>}
               </button>
               {who.role === "admin" && (
                 <button
@@ -734,6 +852,9 @@ function TeamPagesStudio({ who }) {
                   placeholder="Team name"
                   aria-label="New team name"
                 />
+                <small className="ts-team-new-hint">
+                  It starts hidden, so visitors don't see an empty page. Click its eye when the page is ready.
+                </small>
                 <div className="ts-team-new-actions">
                   <button type="submit" className="tj-btn" disabled={creating || !newName.trim()}>
                     {creating ? "Creating…" : "Create"}
@@ -754,118 +875,143 @@ function TeamPagesStudio({ who }) {
             by team so in-flight uploads can never land in another team. */}
         <UploadContext.Provider value={uploadCtx}>
           <form key={activeId} className="tj-settings" onSubmit={onSave} style={view === "edit" ? undefined : { display: "none" }}>
-            <div className="ts-tip">
-              <FaLightbulb />
-              <span>
-                <b>Images:</b> click <i>Upload</i> (or drop photos on a gallery) - they're optimised in your
-                browser and stored on Cloudinary. You can still paste a Google Drive link (shared as{" "}
-                <i>“Anyone with the link”</i>) or a Cloudinary URL.{" "}
-                <b>YouTube &amp; Instagram:</b> just paste the post/video links; you can paste several at once.
-              </span>
-            </div>
+            <StepHead n={2} title="Top of the page">
+              The team's name, pictures and links. They appear at the very top of the team page, and the name and summary also
+              appear on the team's card in the Teams list.
+            </StepHead>
 
             <div className="tj-columns ts-columns">
               <div className="ts-side">
-              <section className="tj-section">
-                <header className="tj-section-head">
-                  <div>
-                    <h3 className="tj-h3">Page sections</h3>
-                    <p className="tj-muted">Click a section to edit it. Use the eye to hide it without deleting.</p>
-                  </div>
-                  <button type="button" className="tj-btn" onClick={() => setPicker((v) => !v)}>
-                    <FaPlus /> Add section
-                  </button>
-                </header>
+                <section className="tj-section ts-header-card">
+                  <header className="tj-section-head">
+                    <div>
+                      <h3 className="tj-h3">Name &amp; text</h3>
+                      <p className="tj-muted">What the team is called and how it's described.</p>
+                    </div>
+                  </header>
+                  <Field label="Team name" hint="Shown in big letters at the top of the page.">
+                    <input className="tj-input" value={draft.title} onChange={(e) => setHeader({ title: e.target.value })} />
+                  </Field>
+                  <Field label="Tagline" hint="One short line under the name - the team's motto or what it does.">
+                    <input className="tj-input" value={draft.tagline} onChange={(e) => setHeader({ tagline: e.target.value })} />
+                  </Field>
+                  <Field label="Card summary" hint="2-4 sentences shown on the team's card in the Teams list, so visitors know what the team is about.">
+                    <textarea
+                      className="tj-input tj-choices"
+                      rows={5}
+                      value={draft.summary}
+                      onChange={(e) => setHeader({ summary: e.target.value })}
+                    />
+                  </Field>
+                </section>
 
-                {picker && <SectionPicker types={SECTION_TYPES} meta={SECTION_META} onPick={addSection} onClose={() => setPicker(false)} />}
+                <section className="tj-section ts-header-card">
+                  <header className="tj-section-head">
+                    <div>
+                      <h3 className="tj-h3">Images</h3>
+                      <p className="tj-muted">Press Upload to pick a picture, or paste a Google Drive link. All three are optional.</p>
+                    </div>
+                  </header>
+                  <ImageField label="Team logo" value={draft.logo} onChange={(v) => setHeader({ logo: v })} />
+                  <small className="tj-muted ts-field-note">Shown in a circle above the name. A square PNG with a transparent or white background looks best.</small>
+                  <ImageField label="Banner image" value={draft.banner} onChange={(v) => setHeader({ banner: v })} />
+                  <small className="tj-muted ts-field-note">The wide picture behind the name. Leave empty to keep the plain blue background.</small>
+                  <ImageField label="Cover photo" value={draft.cover} onChange={(v) => setHeader({ cover: v })} />
+                  <small className="tj-muted ts-field-note">A group photo of the team, shown just below the top of the page.</small>
+                </section>
 
-                {draft.sections.map((s, i) => (
-                  <SectionCard
-                    key={s.id}
-                    s={s}
-                    meta={SECTION_META[s.type]}
-                    count={countLabel(s)}
-                    index={i}
-                    total={draft.sections.length}
-                    open={openKey === s.id}
-                    onToggle={() => setOpenKey((k) => (k === s.id ? null : s.id))}
-                    onChange={(next) => setSection(i, next)}
-                    onDelete={() => removeSection(i)}
-                    onMove={(dir) => moveSection(i, dir)}
-                    renderBody={() => (
-                      <SectionBody s={s} set={(next) => setSection(i, next)} onUpdate={(fn) => updateSection(s.id, fn)} />
-                    )}
-                  />
-                ))}
-
-                {draft.sections.length === 0 && (
-                  <p className="tj-empty">This page has no sections yet - use “Add section” to start.</p>
-                )}
-              </section>
-
-              <section className="tj-section ts-header-card">
-                <header className="tj-section-head">
-                  <div>
-                    <h3 className="tj-h3">Images</h3>
-                    <p className="tj-muted">Team logo, banner and cover photo.</p>
-                  </div>
-                </header>
-                <ImageField label="Team logo" value={draft.logo} onChange={(v) => setHeader({ logo: v })} />
-                <small className="tj-muted ts-field-note">Square PNG with a transparent or white background looks best.</small>
-                <ImageField label="Banner image (optional)" value={draft.banner} onChange={(v) => setHeader({ banner: v })} />
-                <small className="tj-muted ts-field-note">Leave empty to keep the default blue background.</small>
-                <ImageField label="Cover photo" value={draft.cover} onChange={(v) => setHeader({ cover: v })} />
-              </section>
-
-              <section className="tj-section ts-header-card">
-                <header className="tj-section-head">
-                  <div>
-                    <h3 className="tj-h3">Social links</h3>
-                    <p className="tj-muted">Icons are picked automatically from each link.</p>
-                  </div>
-                </header>
-                <LinkList kind="social" links={draft.socials} onChange={(socials) => setHeader({ socials })} />
-              </section>
+                <section className="tj-section ts-header-card">
+                  <header className="tj-section-head">
+                    <div>
+                      <h3 className="tj-h3">Social links</h3>
+                      <p className="tj-muted">
+                        Paste the team's Facebook, Instagram, YouTube, LinkedIn… page links. The right icon is picked
+                        automatically. Leave empty if the team has none.
+                      </p>
+                    </div>
+                  </header>
+                  <LinkList kind="social" links={draft.socials} onChange={(socials) => setHeader({ socials })} />
+                </section>
               </div>
 
-              <div className="ts-side">
-              <section className="tj-section ts-header-card">
-                <header className="tj-section-head">
-                  <div>
-                    <h3 className="tj-h3">Header preview</h3>
-                    <p className="tj-muted">How the top of the team page looks - updates as you type.</p>
-                  </div>
-                  <Link to={`/teams/${draft.id}`} target="_blank" className="tj-btn tj-btn-ghost">
-                    <FaExternalLinkAlt /> Live page
+              <div className="ts-side ts-side-sticky">
+                <section className="tj-section ts-header-card">
+                  <header className="tj-section-head">
+                    <div>
+                      <h3 className="tj-h3">Header preview</h3>
+                      <p className="tj-muted">How the top of the team page will look. It updates as you type.</p>
+                    </div>
+                  </header>
+                  <HeroMini page={draft} />
+                  <Link to={`/teams/${draft.id}`} target="_blank" className="tj-btn tj-btn-ghost ts-live-link">
+                    <FaExternalLinkAlt /> Open the live page
                   </Link>
-                </header>
-                <HeroMini page={draft} />
-              </section>
-
-              <section className="tj-section ts-header-card">
-                <header className="tj-section-head">
-                  <div>
-                    <h3 className="tj-h3">Name &amp; text</h3>
-                    <p className="tj-muted">Team name, tagline and the summary on the /teams card.</p>
-                  </div>
-                </header>
-                <Field label="Team name">
-                  <input className="tj-input" value={draft.title} onChange={(e) => setHeader({ title: e.target.value })} />
-                </Field>
-                <Field label="Tagline">
-                  <input className="tj-input" value={draft.tagline} onChange={(e) => setHeader({ tagline: e.target.value })} />
-                </Field>
-                <Field label="Card summary" hint="Shown on the team's card in the /teams list.">
-                  <textarea
-                    className="tj-input tj-choices"
-                    rows={5}
-                    value={draft.summary}
-                    onChange={(e) => setHeader({ summary: e.target.value })}
-                  />
-                </Field>
-              </section>
+                  <small className="tj-muted">The live page shows what's published now, not your unpublished changes.</small>
+                </section>
               </div>
             </div>
+
+            <StepHead n={3} title="Page sections">
+              The blocks below the top of the page, in the order visitors see them. Click a section's name to open it and make
+              changes.
+            </StepHead>
+
+            <section className="tj-section">
+              <header className="tj-section-head">
+                <div className="ts-legend" aria-label="What the buttons do">
+                  <span>
+                    <FaEye /> show or hide it (hidden sections are kept, not deleted)
+                  </span>
+                  <span>
+                    <FaArrowUp />
+                    <FaArrowDown /> move it up or down
+                  </span>
+                  <span>
+                    <FaTrash /> delete it
+                  </span>
+                </div>
+                <button type="button" className="tj-btn" onClick={() => setPicker((v) => !v)}>
+                  <FaPlus /> Add section
+                </button>
+              </header>
+
+              {picker && <SectionPicker types={SECTION_TYPES} meta={SECTION_META} onPick={addSection} onClose={() => setPicker(false)} />}
+
+              {draft.sections.map((s, i) => (
+                <SectionCard
+                  key={s.id}
+                  s={s}
+                  meta={SECTION_META[s.type]}
+                  count={countLabel(s)}
+                  index={i}
+                  total={draft.sections.length}
+                  open={openKey === s.id}
+                  onToggle={() => setOpenKey((k) => (k === s.id ? null : s.id))}
+                  onChange={(next) => setSection(i, next)}
+                  onDelete={() => removeSection(i)}
+                  onMove={(dir) => moveSection(i, dir)}
+                  help={
+                    SECTION_HELP[s.type] && (
+                      <p className="ts-section-help">
+                        <FaInfoCircle /> {SECTION_HELP[s.type]}
+                      </p>
+                    )
+                  }
+                  renderBody={() => (
+                    <SectionBody s={s} set={(next) => setSection(i, next)} onUpdate={(fn) => updateSection(s.id, fn)} />
+                  )}
+                />
+              ))}
+
+              {draft.sections.length === 0 && (
+                <p className="tj-empty">This page has no sections yet - press “Add section” to start.</p>
+              )}
+            </section>
+
+            <StepHead n={4} title="Check and publish">
+              Press <b>Preview</b> to see the whole page as a visitor would. When it looks right, press <b>Publish</b> in the bar
+              below. Until then, nothing on the website changes.
+            </StepHead>
 
             <div className={`tj-savebar${dirty ? " is-dirty" : ""}`}>
               <span className={`tj-savebar-msg${msg.type === "ok" ? " is-ok" : msg.type === "err" ? " is-err" : ""}`}>
@@ -873,15 +1019,24 @@ function TeamPagesStudio({ who }) {
                   (uploads > 0
                     ? "Uploading photos - Publish unlocks when they finish"
                     : dirty
-                    ? "You have unpublished changes"
-                    : "Everything is published")}
+                    ? "You have changes that aren't on the website yet"
+                    : "Everything is published - the website matches this page")}
               </span>
               <span className="ts-savebar-actions">
                 {dirty && (
-                  <button type="button" className="tj-btn tj-btn-ghost" onClick={discard} disabled={busy || uploads > 0}>
+                  <button
+                    type="button"
+                    className="tj-btn tj-btn-ghost"
+                    onClick={discard}
+                    disabled={busy || uploads > 0}
+                    title="Throw away everything you changed since the last Publish"
+                  >
                     Discard
                   </button>
                 )}
+                <button type="button" className="tj-btn tj-btn-ghost" onClick={openPreview} title="See the whole page as visitors will">
+                  <FaEye /> Preview
+                </button>
                 <button type="submit" className="frame-btn frame-btn-primary tj-save-btn" disabled={busy || !dirty || uploads > 0}>
                   {busy ? "Publishing…" : uploads > 0 ? "Uploading…" : "Publish"}
                 </button>
@@ -894,8 +1049,14 @@ function TeamPagesStudio({ who }) {
       {view === "preview" && (
         <div className="ts-preview">
           <div className="ts-preview-bar">
-            <FaEye /> Preview of <b>{draft.title}</b>
-            {dirty ? " — includes unpublished changes" : ""}
+            <FaEye />
+            <span>
+              This is how visitors will see <b>{draft.title}</b>.
+              {dirty ? " It includes changes that aren't published yet - go back and press Publish to put them live." : ""}
+            </span>
+            <button type="button" className="ts-preview-back" onClick={() => setView("edit")}>
+              ← Back to editing
+            </button>
           </div>
           <TeamDetail page={cleanPage(draft)} preview />
         </div>
