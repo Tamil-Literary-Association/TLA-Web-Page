@@ -46,6 +46,12 @@ export const ACTIONS = {
   faq_removed: { icon: FaTrash, verb: "deleted the help question", group: "site" },
   faq_hidden: { icon: FaEyeSlash, verb: "hid the help question", group: "site" },
   faq_shown: { icon: FaEye, verb: "showed the help question again", group: "site" },
+  committee_added: { icon: FaUserPlus, verb: "added to the committee", group: "site" },
+  committee_updated: { icon: FaUserEdit, verb: "edited the committee card of", group: "site" },
+  committee_removed: { icon: FaTrash, verb: "removed from the committee", group: "site" },
+  committee_hidden: { icon: FaEyeSlash, verb: "hid from the committee page", group: "site" },
+  committee_shown: { icon: FaEye, verb: "showed on the committee page again", group: "site" },
+  committee_settings: { icon: FaUserEdit, verb: "changed the committee year to", group: "site" },
   member_added: { icon: FaIdCard, verb: "added the member", group: "members" },
   member_updated: { icon: FaIdCard, verb: "edited the member", group: "members" },
   member_removed: { icon: FaTrash, verb: "removed the member", group: "members" },
@@ -74,6 +80,8 @@ export function activityObject(e, teamTitle, eventTitle = (id) => id) {
   if (e.action.startsWith("member_")) return (e.details || {}).name || "";
   if (e.action.startsWith("book_")) return (e.details || {}).title || "";
   if (e.action.startsWith("faq_")) return (e.details || {}).q || "";
+  if (e.action === "committee_settings") return (e.details || {}).year || "";
+  if (e.action.startsWith("committee_")) return (e.details || {}).name || "";
   if (e.target_email && e.action !== "password_changed") return e.target_email;
   return "";
 }
