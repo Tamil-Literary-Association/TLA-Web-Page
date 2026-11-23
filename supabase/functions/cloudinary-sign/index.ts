@@ -1,6 +1,6 @@
 // Signs Cloudinary uploads and deletes for the team-page admin (/admin/teams),
-// the event-page admin (/admin/events), the home page wallpapers and the books
-// admin (/admin/books).
+// the event-page admin (/admin/events), the home page wallpapers, the books
+// admin (/admin/books) and the committee admin (/admin/committee).
 //
 // The Cloudinary API secret lives only here (as a Supabase secret). The
 // browser asks this function for a short-lived signature, then uploads the
@@ -11,6 +11,7 @@
 //     -> { cloudName, uploads: [{ apiKey, timestamp, signature, params }, …] }
 //   POST { action: "sign",   wallpapers: true, count: 1 } (home page wallpapers, main admins only)
 //   POST { action: "sign",   books: true, kind: "pdf" | "cover", count: 1 } (book PDFs / covers, main admins only)
+//   POST { action: "sign",   committee: true, count: 1 } (committee photos, main admins only)
 //   POST { action: "delete", publicIds: ["tla/teams/1/abc…", "tla/events/ppl/abc…", …] }
 //     -> { deleted: [...], failed: [...] }
 //
@@ -34,6 +35,7 @@ const ROOT = "tla/teams";
 const EVENT_ROOT = "tla/events";
 const WALLPAPER_ROOT = "tla/wallpapers";
 const BOOK_ROOT = "tla/books";
+const COMMITTEE_ROOT = "tla/committee";
 const MAX_SIGN = 30; // signatures per request
 const MAX_DELETE = 60; // public ids per request
 const ALLOWED_FORMATS = "jpg,jpeg,png,webp,gif,avif,heic,heif";
@@ -46,6 +48,7 @@ const TEAM_ID_RE = /^tla\/teams\/(\d{1,3})\/[A-Za-z0-9_-]{8,64}$/;
 const EVENT_ID_RE = /^tla\/events\/([a-z0-9][a-z0-9-]{0,48})\/[A-Za-z0-9_-]{8,64}$/;
 const WALLPAPER_ID_RE = /^tla\/wallpapers\/[A-Za-z0-9_-]{8,64}$/;
 const BOOK_ID_RE = /^tla\/books\/[A-Za-z0-9_-]{8,64}$/;
+const COMMITTEE_ID_RE = /^tla\/committee\/[A-Za-z0-9_-]{8,64}$/;
 const SLUG_RE = /^[a-z0-9][a-z0-9-]{1,48}$/;
 
 const CORS = {
@@ -137,6 +140,10 @@ async function signUploads(who: Access, body: Record<string, unknown>) {
     folder = BOOK_ROOT;
     tag = "tla-books";
     if (body.kind === "pdf") formats = PDF_FORMATS;
+  } else if (body.committee === true) {
+    if (!who.isAdmin) return json({ error: "Only main admins can change the committee." }, 403);
+    folder = COMMITTEE_ROOT;
+    tag = "tla-committee";
   } else if (body.wallpapers === true) {
     if (!who.isAdmin) return json({ error: "Only main admins can change the home page wallpapers." }, 403);
     folder = WALLPAPER_ROOT;
@@ -192,12 +199,12 @@ async function deleteImages(who: Access, publicIds: unknown) {
   if (!Array.isArray(publicIds) || publicIds.length === 0) return json({ deleted: [], failed: [] });
   if (publicIds.length > MAX_DELETE) return json({ error: `At most ${MAX_DELETE} images per request.` }, 400);
   const bad = publicIds.filter(
-    (p) => typeof p !== "string" || !(TEAM_ID_RE.test(p) || EVENT_ID_RE.test(p) || WALLPAPER_ID_RE.test(p) || BOOK_ID_RE.test(p))
+    (p) => typeof p !== "string" || !(TEAM_ID_RE.test(p) || EVENT_ID_RE.test(p) || WALLPAPER_ID_RE.test(p) || BOOK_ID_RE.test(p) || COMMITTEE_ID_RE.test(p))
   );
-  if (bad.length) return json({ error: "Refusing to delete images outside tla/teams/, tla/events/, tla/wallpapers/ and tla/books/.", bad }, 400);
+  if (bad.length) return json({ error: "Refusing to delete images outside tla/teams/, tla/events/, tla/wallpapers/, tla/books/ and tla/committee/.", bad }, 400);
   // tla/teams/<teamId>/… or tla/events/<eventId>/… - the third path segment says whose it is.
   const mine = (p: string) =>
-    p.startsWith("tla/wallpapers/") || p.startsWith("tla/books/")
+    p.startsWith("tla/wallpapers/") || p.startsWith("tla/books/") || p.startsWith("tla/committee/")
       ? who.isAdmin
       : p.startsWith("tla/teams/") ? who.canEdit(Number(p.split("/")[2])) : who.canEditEvent(p.split("/")[2]);
   const notYours = publicIds.filter((p) => !mine(p as string));
