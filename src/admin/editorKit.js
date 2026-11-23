@@ -476,7 +476,8 @@ export function CompetitionsEditor({ s, set }) {
 
 // A collapsible card for one section. `meta` is the section type's
 // { icon, label, hint, heading }; `renderBody` draws the type-specific editor.
-export function SectionCard({ s, meta, count, index, total, open, onToggle, onChange, onDelete, onMove, renderBody }) {
+// `help` (optional) is a short explanation shown at the top of the open card.
+export function SectionCard({ s, meta, count, index, total, open, onToggle, onChange, onDelete, onMove, renderBody, help }) {
   const Icon = meta.icon;
   // Once opened, the editor stays mounted while collapsed so an upload in
   // progress isn't cancelled by folding the section away.
@@ -520,6 +521,7 @@ export function SectionCard({ s, meta, count, index, total, open, onToggle, onCh
 
       {opened.current && (
         <div className="tj-field-body" style={open ? undefined : { display: "none" }}>
+          {help}
           <Field label="Section heading (shown on the page)" hint={meta.heading}>
             <input
               className="tj-input"
