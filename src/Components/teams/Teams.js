@@ -8,15 +8,13 @@ import {
     fetchTeamJoinConfig,
     getCachedTeamJoinConfig,
 } from "../../shared/teamJoinConfig";
-import {
-    COMMITTEE_YEAR,
-    COMMITTEE_COUNT,
-    COMMITTEE_PREVIEW,
-} from "./committee/committeeData";
+import { useCommittee } from "../../shared/committee";
+import { DEFAULT_FOCUS } from "./committee/committeeData";
 import "./committee/committeeCard.css";
 
 const Teams = () => {
     const [joinCfg, setJoinCfg] = useState(getCachedTeamJoinConfig);
+    const committee = useCommittee();
     const pages = useTeamPages().filter((t) => !t.hidden);
     const upcoming = upcomingCompetitions(pages);
 
@@ -39,40 +37,43 @@ const Teams = () => {
             தமிழ் இலக்கிய மன்றத்தினால் வருடந்தோறும் தமக்கேயான தனியான பாணியில் தமிழருவி, சொற்கணை, பொங்கல் விழா, வாணி விழா, ஜீவநதி, துடுப்பாட்ட சுற்றுப்போட்டிகள் என எமது பல்கலைக்கழக மாணவர்கள் மட்டுமன்றி ஏனைய பல்கலைக்கழக மாணவர்கள், பாடசாலை மாணவர்கள் மட்டுமன்றி உலகெங்கும் பரந்து வாழும் தமிழ் மக்களின் திறன் விருத்திக்கும் ஆளுமை வளர்ச்சிக்கும் ஏற்பாடு செய்யப்பட்டு வருகின்றது. இந்த அனைத்து நிகழ்வுகளிற்கான ஏற்பாடுகள் ஆரம்பம் முதல் இறுதி வரை செவ்வனே புதிய படைப்புகளாகவும் தொழில்நுட்ப வளர்ச்சியின் அத்தியாயமாகவும் அமைய வடிவமைக்க வழிகோலும் வகையில் முதுகென்பாக இருக்கின்றார்கள் நம் வலையமைப்பு அணி, ஊடக அணி, வடிவமைப்பு அணி, தொழில்நுட்ப அணி.
             </p>
 
+            {committee.count > 0 && (
             <Link to="/teams/committee" className="teams-committee">
                 <div className="teams-committee-text">
                     <span className="teams-committee-eyebrow">
-                        செயற்குழு · {COMMITTEE_YEAR}
+                        செயற்குழு{committee.year ? ` · ${committee.year}` : ""}
                     </span>
                     <span className="teams-committee-title">
                         எமது செயற்குழுவைச் சந்தியுங்கள்
                     </span>
                     <span className="teams-committee-desc">
-                        மன்றத்தின் ஒவ்வொரு நிகழ்வையும் முன்னின்று நடத்தும் {COMMITTEE_COUNT} பேர் கொண்ட அணி பதவி வகிப்போர், இதழாசிரியர்கள், ஒருங்கிணைப்பாளர்கள்.
+                        மன்றத்தின் ஒவ்வொரு நிகழ்வையும் முன்னின்று நடத்தும் {committee.count} பேர் கொண்ட அணி பதவி வகிப்போர், இதழாசிரியர்கள், ஒருங்கிணைப்பாளர்கள்.
                     </span>
                     <span className="teams-committee-cta">
                         செயற்குழுவைப் பார்க்க <FaArrowRight />
                     </span>
                 </div>
                 <div className="teams-committee-fan" aria-hidden="true">
-                    {COMMITTEE_PREVIEW.map((m, i) => (
+                    {committee.preview.map((m, i) => (
                         <span
-                            key={m.name}
+                            key={m.id}
                             className={`teams-committee-photo teams-committee-photo--${i}`}
                         >
                             <SmartImage
-                                src={m.photo}
+                                src={m.photo_url}
                                 width={320}
                                 alt=""
+                                style={{ objectPosition: `center ${m.photo_focus ?? DEFAULT_FOCUS}%` }}
                                 fallback={<span className="teams-committee-blank" />}
                             />
                         </span>
                     ))}
                     <span className="teams-committee-count">
-                        <b>{COMMITTEE_COUNT}</b> பேர்
+                        <b>{committee.count}</b> பேர்
                     </span>
                 </div>
             </Link>
+            )}
 
             {joinCfg.enabled && (
                 <Link to="/teams/join" className="teams-join-banner">
