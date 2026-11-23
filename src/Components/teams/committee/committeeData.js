@@ -10,14 +10,18 @@ export const COMMITTEE_DRIVE_FOLDER =
 
 const drive = (id) => `https://drive.google.com/file/d/${id}/view`;
 
-// Each group is one section of the page, in this order. `lead: true` shows the
-// group with larger cards (used for the office bearers).
+// Each group is one section of the page, in this order. `layout` picks how the
+// group is drawn:
+//   "podium"  – first person (the President) in the middle, raised, with the
+//               next two either side; the rest in a row below
+//   "cards"   – portrait cards
+//   "circles" – compact round portraits
 export const COMMITTEE_GROUPS = [
   {
     id: "office-bearers",
     title: "பதவி வகிப்போர்",
     subtitle: "Office bearers",
-    lead: true,
+    layout: "podium",
     members: [
       { name: "Yathursanan", role: "தலைவர்", roleEn: "President", photo: drive("15Y9cAKUDvPppNJE09kzOimQpyQh6u7Rw") },
       { name: "Keerthanan", role: "உப தலைவர்", roleEn: "Vice President", photo: drive("1f_yfdj_mlYSRaM2spG06chfBTvud5jjo") },
@@ -31,6 +35,7 @@ export const COMMITTEE_GROUPS = [
     id: "editors",
     title: "இதழாசிரியர்கள்",
     subtitle: "Editors",
+    layout: "cards",
     members: [
       { name: "Abeeth", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("19O3yiV19XawvdikDhgbTyo4hqMJqtmzy") },
       { name: "Babenaiyaa", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("1oKCBgxXI33KC5PZ2Z57qxGj3jWAGuz7d") },
@@ -41,6 +46,7 @@ export const COMMITTEE_GROUPS = [
     id: "team-coordinators",
     title: "அணி ஒருங்கிணைப்பாளர்கள்",
     subtitle: "Team coordinators",
+    layout: "cards",
     members: [
       { name: "Laavanjan", role: "இணையத்தள ஒருங்கிணைப்பாளர்", roleEn: "Web Coordinator", photo: drive("1V8_fXOEYBwAJtB-R4E5w6xJvaGMHGYLC") },
       { name: "Mathujan", role: "தொழில்நுட்ப அணி ஒருங்கிணைப்பாளர்", roleEn: "Tech Team Coordinator", photo: drive("1bXynmNajakLaDjza0Vty-f-IAibt-l-C") },
@@ -54,6 +60,7 @@ export const COMMITTEE_GROUPS = [
     id: "coordinators",
     title: "ஒருங்கிணைப்பாளர்கள்",
     subtitle: "Coordinators",
+    layout: "circles",
     members: [
       { name: "Aadithiyan", photo: drive("1_vSAIwcGSiZNU-ipbwvTEyRq2mJqH3F3") },
       { name: "Aathirai", photo: drive("1dCqGAJvp9tFAceKwSXmCAsTVYztBU_kd") },
@@ -75,5 +82,7 @@ export const COMMITTEE_GROUPS = [
 
 export const COMMITTEE_COUNT = COMMITTEE_GROUPS.reduce((n, g) => n + g.members.length, 0);
 
-// A few faces for the teaser card on the Teams page.
-export const COMMITTEE_PREVIEW = COMMITTEE_GROUPS[0].members.slice(0, 5);
+// Faces for the card on the Teams page: the President in the middle, the other
+// office bearers either side.
+const [president, ...bearers] = COMMITTEE_GROUPS[0].members;
+export const COMMITTEE_PREVIEW = [bearers[2], bearers[0], president, bearers[1], bearers[3]].filter(Boolean);
