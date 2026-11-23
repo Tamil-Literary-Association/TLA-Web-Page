@@ -182,6 +182,128 @@ p {
     color: #666;
 }
 
+/* "Our committee" card linking to /teams/committee */
+.teams-committee {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 18px 24px;
+    padding: 22px 28px;
+    margin-bottom: 4%;
+    border-radius: 14px;
+    background:
+        radial-gradient(ellipse 50% 120% at 0% 50%, rgba(230, 180, 34, 0.18), transparent 70%),
+        linear-gradient(120deg, #fffaf0 0%, #fff 60%);
+    border: 1px solid rgba(200, 147, 47, 0.55);
+    box-shadow: rgba(0, 0, 0, 0.12) 0px 3px 10px;
+    text-decoration: none;
+    color: #022345;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.teams-committee:hover {
+    transform: translateY(-4px);
+    box-shadow: rgba(0, 0, 0, 0.22) 0px 10px 24px;
+    color: #022345;
+}
+
+.teams-committee-faces {
+    display: flex;
+    align-items: center;
+    padding-left: 12px;
+}
+
+.teams-committee .teams-committee-face {
+    width: 58px;
+    height: 58px;
+    padding: 0;
+    margin-left: -12px;
+    border-radius: 50%;
+    border: 3px solid #fff;
+    object-fit: cover;
+    object-position: center 22%;
+    background: #d6dde8;
+    box-shadow: 0 3px 8px rgba(2, 35, 69, 0.2);
+    flex-shrink: 0;
+}
+
+.teams-committee .teams-committee-face--blank {
+    display: block;
+}
+
+.teams-committee .teams-committee-more {
+    display: grid;
+    place-items: center;
+    background: #022345;
+    color: #e6b422;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.teams-committee-text {
+    flex: 1 1 260px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.teams-committee-year {
+    align-self: flex-start;
+    background: #022345;
+    color: #e6b422;
+    border-radius: 20px;
+    padding: 2px 12px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 2px;
+}
+
+.teams-committee-title {
+    font-family: "Heading" !important;
+    font-size: 28px;
+    line-height: 1.3;
+}
+
+.teams-committee-desc {
+    font-family: "Para" !important;
+    font-size: 17px;
+    color: #444;
+}
+
+.teams-committee-cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: "Para" !important;
+    font-size: 18px;
+    font-weight: bold;
+    color: #c8932f;
+    white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+    .teams-committee {
+        padding: 18px;
+    }
+    .teams-committee .teams-committee-face {
+        width: 42px;
+        height: 42px;
+        border-width: 2px;
+        margin-left: -14px;
+    }
+    .teams-committee .teams-committee-more {
+        font-size: 12px;
+    }
+    .teams-committee-title {
+        font-size: 24px;
+    }
+    .teams-committee-desc {
+        font-size: 15px;
+    }
+}
+
 .teams-card-head {
     display: flex;
     align-items: center;

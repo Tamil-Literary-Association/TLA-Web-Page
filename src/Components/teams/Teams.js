@@ -8,6 +8,11 @@ import {
     fetchTeamJoinConfig,
     getCachedTeamJoinConfig,
 } from "../../shared/teamJoinConfig";
+import {
+    COMMITTEE_YEAR,
+    COMMITTEE_COUNT,
+    COMMITTEE_PREVIEW,
+} from "./committee/committeeData";
 
 const Teams = () => {
     const [joinCfg, setJoinCfg] = useState(getCachedTeamJoinConfig);
@@ -32,6 +37,34 @@ const Teams = () => {
             <p className="intro">
             தமிழ் இலக்கிய மன்றத்தினால் வருடந்தோறும் தமக்கேயான தனியான பாணியில் தமிழருவி, சொற்கணை, பொங்கல் விழா, வாணி விழா, ஜீவநதி, துடுப்பாட்ட சுற்றுப்போட்டிகள் என எமது பல்கலைக்கழக மாணவர்கள் மட்டுமன்றி ஏனைய பல்கலைக்கழக மாணவர்கள், பாடசாலை மாணவர்கள் மட்டுமன்றி உலகெங்கும் பரந்து வாழும் தமிழ் மக்களின் திறன் விருத்திக்கும் ஆளுமை வளர்ச்சிக்கும் ஏற்பாடு செய்யப்பட்டு வருகின்றது. இந்த அனைத்து நிகழ்வுகளிற்கான ஏற்பாடுகள் ஆரம்பம் முதல் இறுதி வரை செவ்வனே புதிய படைப்புகளாகவும் தொழில்நுட்ப வளர்ச்சியின் அத்தியாயமாகவும் அமைய வடிவமைக்க வழிகோலும் வகையில் முதுகென்பாக இருக்கின்றார்கள் நம் வலையமைப்பு அணி, ஊடக அணி, வடிவமைப்பு அணி, தொழில்நுட்ப அணி.
             </p>
+
+            <Link to="/teams/committee" className="teams-committee">
+                <div className="teams-committee-faces" aria-hidden="true">
+                    {COMMITTEE_PREVIEW.map((m) => (
+                        <SmartImage
+                            key={m.name}
+                            src={m.photo}
+                            width={160}
+                            alt=""
+                            className="teams-committee-face"
+                            fallback={<span className="teams-committee-face teams-committee-face--blank" />}
+                        />
+                    ))}
+                    <span className="teams-committee-face teams-committee-more">
+                        +{COMMITTEE_COUNT - COMMITTEE_PREVIEW.length}
+                    </span>
+                </div>
+                <div className="teams-committee-text">
+                    <span className="teams-committee-year">{COMMITTEE_YEAR}</span>
+                    <span className="teams-committee-title">எமது செயற்குழு</span>
+                    <span className="teams-committee-desc">
+                        மன்றத்தை வழிநடத்தும் {COMMITTEE_COUNT} பேர் கொண்ட செயற்குழுவைச் சந்தியுங்கள்.
+                    </span>
+                </div>
+                <span className="teams-committee-cta">
+                    பார்க்க <FaArrowRight />
+                </span>
+            </Link>
 
             {joinCfg.enabled && (
                 <Link to="/teams/join" className="teams-join-banner">
