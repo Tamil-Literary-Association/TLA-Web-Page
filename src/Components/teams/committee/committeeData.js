@@ -1,88 +1,121 @@
-// The committee shown at /teams/committee. Photos are Google Drive links from
-// the "TLA Committee 26/27" folder; the folder must stay shared as "Anyone with
-// the link" or the photos stop loading. For a new committee, change the year
-// and replace the members below.
+// What the committee page is made of. The people and the year are edited at
+// /admin/committee and stored in Supabase (supabase/migrations/committee.sql);
+// BUILT_IN_COMMITTEE below is only the fallback used when that can't be read
+// (the SQL not run yet, or Supabase is down), so the page always shows someone.
 
-export const COMMITTEE_YEAR = "2026/27";
-
-export const COMMITTEE_DRIVE_FOLDER =
-  "https://drive.google.com/drive/folders/1CV4_rMSYgtOxKtHoyEt8HemAnEhA2bJi";
-
-const drive = (id) => `https://drive.google.com/file/d/${id}/view`;
-
-// Each group is one section of the page, in this order. `layout` picks how the
-// group is drawn:
-//   "podium"  – first person (the President) in the middle, raised, with the
-//               next two either side; the rest in a row below
-//   "cards"   – portrait cards
-//   "circles" – compact round portraits
-export const COMMITTEE_GROUPS = [
+// The sections of the page, in this order. The admin can't add sections; to
+// add one, add it here and to the group_id check in committee.sql.
+//   layout "podium"  – first person (the President) in the middle, raised,
+//                      with the next two either side; the rest in a row below
+//   layout "cards"   – portrait cards
+//   layout "circles" – compact round portraits
+export const COMMITTEE_GROUP_DEFS = [
   {
     id: "office-bearers",
     title: "பதவி வகிப்போர்",
     subtitle: "Office bearers",
     layout: "podium",
-    members: [
-      { name: "Yathursanan", role: "தலைவர்", roleEn: "President", photo: drive("15Y9cAKUDvPppNJE09kzOimQpyQh6u7Rw") },
-      { name: "Keerthanan", role: "உப தலைவர்", roleEn: "Vice President", photo: drive("1f_yfdj_mlYSRaM2spG06chfBTvud5jjo") },
-      { name: "Kottesvaran", role: "உப தலைவர்", roleEn: "Vice President", photo: drive("1_cl2LLqeYUVsfoPpdaSPyzhGDmgZTMRN") },
-      { name: "Sivamynthan", role: "செயலாளர்", roleEn: "Secretary", photo: drive("1Qpbqkp8Y881QvEWrt3Yl829du3I-9KIN") },
-      { name: "Sajeevan", role: "உப செயலாளர்", roleEn: "Vice Secretary", photo: drive("1-5HkocEkUS3YpsxMi-nOhAPy1EmEcqIG") },
-      { name: "Anush", role: "பொருளாளர்", roleEn: "Treasurer", photo: drive("1kfTH8znzPJKftNRY_VZ9XMMjc938oXci") },
-    ],
+    help: "President, vice presidents, secretary, vice secretary and treasurer. The FIRST person here is shown in the middle, larger (put the President first). The next two stand either side of them.",
   },
   {
     id: "team-coordinators",
     title: "அணி ஒருங்கிணைப்பாளர்கள்",
     subtitle: "Team coordinators",
     layout: "cards",
-    members: [
-      { name: "Laavanjan", role: "இணையத்தள ஒருங்கிணைப்பாளர்", roleEn: "Web Coordinator", photo: drive("1V8_fXOEYBwAJtB-R4E5w6xJvaGMHGYLC") },
-      { name: "Mathujan", role: "தொழில்நுட்ப அணி ஒருங்கிணைப்பாளர்", roleEn: "Tech Team Coordinator", photo: drive("1bXynmNajakLaDjza0Vty-f-IAibt-l-C") },
-      { name: "Lathushikan", role: "ஊடக அணி ஒருங்கிணைப்பாளர்", roleEn: "Media Team Coordinator", photo: drive("1A2Q0spFlxW0Zw4jitGvzwMG6GjbXs8It") },
-      { name: "Lisorthman", role: "ஊடக அணி ஒருங்கிணைப்பாளர்", roleEn: "Media Team Coordinator", photo: drive("13p4Dn9lme0fqTAhXtIIH9C8c49sNzVY-") },
-      { name: "Thiruvarankan", role: "ஊடக அணி ஒருங்கிணைப்பாளர்", roleEn: "Media Team Coordinator", photo: drive("11xPz-3jPr7GIymkDSuLfE13Z5FaJIyeA") },
-      { name: "Melshan", role: "அலங்கார ஒருங்கிணைப்பாளர்", roleEn: "Decoration Coordinator", photo: drive("1W7HuJCHJhUySJhCiMxw0Q9OSbLfdC_h6") },
-    ],
+    help: "The coordinators of the web, tech, media and design teams. Shown as portrait cards.",
   },
   {
     id: "editors",
     title: "இதழாசிரியர்கள்",
     subtitle: "Editors",
     layout: "cards",
-    members: [
-      { name: "Abeeth", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("19O3yiV19XawvdikDhgbTyo4hqMJqtmzy") },
-      { name: "Babenaiyaa", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("1oKCBgxXI33KC5PZ2Z57qxGj3jWAGuz7d") },
-      { name: "Geethasanchcharan", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("14984eKiiQR0W2utsBk8jHw25-lV-eyyW") },
-    ],
+    help: "The editors of the association's magazines. Shown as portrait cards.",
   },
   {
     id: "coordinators",
     title: "ஒருங்கிணைப்பாளர்கள்",
     subtitle: "Coordinators",
     layout: "circles",
-    members: [
-      { name: "Aadithiyan", photo: drive("1_vSAIwcGSiZNU-ipbwvTEyRq2mJqH3F3") },
-      { name: "Aathirai", photo: drive("1dCqGAJvp9tFAceKwSXmCAsTVYztBU_kd") },
-      { name: "Akalishan", photo: drive("1sjbMKkwAcck-PPbSBCFpDNjj6VtPID5p") },
-      { name: "Donacia", photo: drive("18qevtBPnT7RHbqUw2M_RwHsiD8ByWLeg") },
-      { name: "Kimathire", photo: drive("1x-N5C6ls5w5JUCzik3q1q20PJiR_7_-8") },
-      { name: "Kokulakavi", photo: drive("15v1BN_gIzXPSVQfDKZ5pe3_Ik2q_RJnc") },
-      { name: "Mahindhan", photo: drive("16ljvK_BUlKSH4srsP_uOYJBezibWhXQs") },
-      { name: "Manoja", photo: drive("1mQ7-3XzhpqoIvk3yF4lPhGhkL1pQcoZE") },
-      { name: "Najinthan", photo: drive("1Ucaso7e8sCRDtzjMhppw1wvJ6W_89ViC") },
-      { name: "Paviththiran", photo: drive("1SkYa8gG1F3Ub_LgVjvw-WIRH4UMzl7aT") },
-      { name: "Sajinthan", photo: drive("1wTOEpVK0N2bk--bnQcMTz5n9PzXf5-kA") },
-      { name: "Satkunaraj", photo: drive("1gpSH40ScSEgonTdwTIZbYiaU0UxJfccv") },
-      { name: "Sayanika", photo: drive("1M9jeI2ddEg9kluOuQH3nMvveiFvnICVW") },
-      { name: "Vakeesan", photo: drive("1-_mLXlju92wrw6x3mfP8zYhTM5zoAJ_X") },
-    ].map((m) => ({ ...m, role: "ஒருங்கிணைப்பாளர்", roleEn: "Coordinator" })),
+    help: "Everyone else on the committee. Shown as round photos with just the name.",
   },
 ];
 
-export const COMMITTEE_COUNT = COMMITTEE_GROUPS.reduce((n, g) => n + g.members.length, 0);
+export const GROUP_IDS = COMMITTEE_GROUP_DEFS.map((g) => g.id);
 
-// Faces for the card on the Teams page: the President in the middle, the other
-// office bearers either side.
-const [president, ...bearers] = COMMITTEE_GROUPS[0].members;
-export const COMMITTEE_PREVIEW = [bearers[2], bearers[0], president, bearers[1], bearers[3]].filter(Boolean);
+// Ready-made roles for the admin's role picker: [Tamil, English, usual group].
+export const ROLE_PRESETS = [
+  ["தலைவர்", "President", "office-bearers"],
+  ["உப தலைவர்", "Vice President", "office-bearers"],
+  ["செயலாளர்", "Secretary", "office-bearers"],
+  ["உப செயலாளர்", "Vice Secretary", "office-bearers"],
+  ["பொருளாளர்", "Treasurer", "office-bearers"],
+  ["உப பொருளாளர்", "Vice Treasurer", "office-bearers"],
+  ["இணையத்தள ஒருங்கிணைப்பாளர்", "Web Coordinator", "team-coordinators"],
+  ["தொழில்நுட்ப அணி ஒருங்கிணைப்பாளர்", "Tech Team Coordinator", "team-coordinators"],
+  ["ஊடக அணி ஒருங்கிணைப்பாளர்", "Media Team Coordinator", "team-coordinators"],
+  ["வடிவமைப்பு அணி ஒருங்கிணைப்பாளர்", "Design Team Coordinator", "team-coordinators"],
+  ["அலங்கார ஒருங்கிணைப்பாளர்", "Decoration Coordinator", "team-coordinators"],
+  ["இதழாசிரியர்", "Editor", "editors"],
+  ["ஒருங்கிணைப்பாளர்", "Coordinator", "coordinators"],
+].map(([role, roleEn, group]) => ({ role, roleEn, group }));
+
+// Which part of a photo stays in view, 0 = top … 100 = bottom. Most photos
+// have the face in the top quarter.
+export const DEFAULT_FOCUS = 24;
+
+const drive = (id) => `https://drive.google.com/file/d/${id}/view`;
+const person = (group_id, name, role, role_en, driveId, sort_order) => ({
+  id: `built-in-${group_id}-${sort_order}`,
+  group_id,
+  name,
+  role,
+  role_en,
+  photo_url: drive(driveId),
+  photo_public_id: "",
+  photo_focus: DEFAULT_FOCUS,
+  sort_order,
+  is_visible: true,
+});
+
+const COORDINATOR = ["ஒருங்கிணைப்பாளர்", "Coordinator"];
+
+// The 2026/27 committee, from the "TLA Committee 26/27" Drive folder
+// (https://drive.google.com/drive/folders/1CV4_rMSYgtOxKtHoyEt8HemAnEhA2bJi).
+// committee.sql seeds the database with the same people.
+export const BUILT_IN_COMMITTEE = {
+  year: "2026/27",
+  intro: "",
+  members: [
+    person("office-bearers", "Yathursanan", "தலைவர்", "President", "15Y9cAKUDvPppNJE09kzOimQpyQh6u7Rw", 0),
+    person("office-bearers", "Keerthanan", "உப தலைவர்", "Vice President", "1f_yfdj_mlYSRaM2spG06chfBTvud5jjo", 1),
+    person("office-bearers", "Kottesvaran", "உப தலைவர்", "Vice President", "1_cl2LLqeYUVsfoPpdaSPyzhGDmgZTMRN", 2),
+    person("office-bearers", "Sivamynthan", "செயலாளர்", "Secretary", "1Qpbqkp8Y881QvEWrt3Yl829du3I-9KIN", 3),
+    person("office-bearers", "Sajeevan", "உப செயலாளர்", "Vice Secretary", "1-5HkocEkUS3YpsxMi-nOhAPy1EmEcqIG", 4),
+    person("office-bearers", "Anush", "பொருளாளர்", "Treasurer", "1kfTH8znzPJKftNRY_VZ9XMMjc938oXci", 5),
+    person("team-coordinators", "Laavanjan", "இணையத்தள ஒருங்கிணைப்பாளர்", "Web Coordinator", "1V8_fXOEYBwAJtB-R4E5w6xJvaGMHGYLC", 0),
+    person("team-coordinators", "Mathujan", "தொழில்நுட்ப அணி ஒருங்கிணைப்பாளர்", "Tech Team Coordinator", "1bXynmNajakLaDjza0Vty-f-IAibt-l-C", 1),
+    person("team-coordinators", "Lathushikan", "ஊடக அணி ஒருங்கிணைப்பாளர்", "Media Team Coordinator", "1A2Q0spFlxW0Zw4jitGvzwMG6GjbXs8It", 2),
+    person("team-coordinators", "Lisorthman", "ஊடக அணி ஒருங்கிணைப்பாளர்", "Media Team Coordinator", "13p4Dn9lme0fqTAhXtIIH9C8c49sNzVY-", 3),
+    person("team-coordinators", "Thiruvarankan", "ஊடக அணி ஒருங்கிணைப்பாளர்", "Media Team Coordinator", "11xPz-3jPr7GIymkDSuLfE13Z5FaJIyeA", 4),
+    person("team-coordinators", "Melshan", "அலங்கார ஒருங்கிணைப்பாளர்", "Decoration Coordinator", "1W7HuJCHJhUySJhCiMxw0Q9OSbLfdC_h6", 5),
+    person("editors", "Abeeth", "இதழாசிரியர்", "Editor", "19O3yiV19XawvdikDhgbTyo4hqMJqtmzy", 0),
+    person("editors", "Babenaiyaa", "இதழாசிரியர்", "Editor", "1oKCBgxXI33KC5PZ2Z57qxGj3jWAGuz7d", 1),
+    person("editors", "Geethasanchcharan", "இதழாசிரியர்", "Editor", "14984eKiiQR0W2utsBk8jHw25-lV-eyyW", 2),
+    ...[
+      ["Aadithiyan", "1_vSAIwcGSiZNU-ipbwvTEyRq2mJqH3F3"],
+      ["Aathirai", "1dCqGAJvp9tFAceKwSXmCAsTVYztBU_kd"],
+      ["Akalishan", "1sjbMKkwAcck-PPbSBCFpDNjj6VtPID5p"],
+      ["Donacia", "18qevtBPnT7RHbqUw2M_RwHsiD8ByWLeg"],
+      ["Kimathire", "1x-N5C6ls5w5JUCzik3q1q20PJiR_7_-8"],
+      ["Kokulakavi", "15v1BN_gIzXPSVQfDKZ5pe3_Ik2q_RJnc"],
+      ["Mahindhan", "16ljvK_BUlKSH4srsP_uOYJBezibWhXQs"],
+      ["Manoja", "1mQ7-3XzhpqoIvk3yF4lPhGhkL1pQcoZE"],
+      ["Najinthan", "1Ucaso7e8sCRDtzjMhppw1wvJ6W_89ViC"],
+      ["Paviththiran", "1SkYa8gG1F3Ub_LgVjvw-WIRH4UMzl7aT"],
+      ["Sajinthan", "1wTOEpVK0N2bk--bnQcMTz5n9PzXf5-kA"],
+      ["Satkunaraj", "1gpSH40ScSEgonTdwTIZbYiaU0UxJfccv"],
+      ["Sayanika", "1M9jeI2ddEg9kluOuQH3nMvveiFvnICVW"],
+      ["Vakeesan", "1-_mLXlju92wrw6x3mfP8zYhTM5zoAJ_X"],
+    ].map(([name, id], i) => person("coordinators", name, ...COORDINATOR, id, i)),
+  ],
+};
