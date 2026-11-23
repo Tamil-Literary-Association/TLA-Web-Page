@@ -13,9 +13,12 @@ const callFn = (body) => callEdgeFunction(FN, body);
 export const WALLPAPER_SCOPE = "@wallpapers";
 // ...and this for book PDFs and covers (main admins only); say which with `kind`.
 export const BOOK_SCOPE = "@books";
+// ...and this for committee photos (main admins only).
+export const COMMITTEE_SCOPE = "@committee";
 
 const scopeBody = (scope, kind) => {
   if (scope === WALLPAPER_SCOPE) return { wallpapers: true };
+  if (scope === COMMITTEE_SCOPE) return { committee: true };
   if (scope === BOOK_SCOPE) return { books: true, kind };
   return typeof scope === "string" ? { eventId: scope } : { teamId: scope };
 };
