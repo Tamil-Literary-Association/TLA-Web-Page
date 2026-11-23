@@ -13,6 +13,7 @@ import {
     COMMITTEE_COUNT,
     COMMITTEE_PREVIEW,
 } from "./committee/committeeData";
+import "./committee/committeeCard.css";
 
 const Teams = () => {
     const [joinCfg, setJoinCfg] = useState(getCachedTeamJoinConfig);
@@ -39,31 +40,38 @@ const Teams = () => {
             </p>
 
             <Link to="/teams/committee" className="teams-committee">
-                <div className="teams-committee-faces" aria-hidden="true">
-                    {COMMITTEE_PREVIEW.map((m) => (
-                        <SmartImage
-                            key={m.name}
-                            src={m.photo}
-                            width={160}
-                            alt=""
-                            className="teams-committee-face"
-                            fallback={<span className="teams-committee-face teams-committee-face--blank" />}
-                        />
-                    ))}
-                    <span className="teams-committee-face teams-committee-more">
-                        +{COMMITTEE_COUNT - COMMITTEE_PREVIEW.length}
-                    </span>
-                </div>
                 <div className="teams-committee-text">
-                    <span className="teams-committee-year">{COMMITTEE_YEAR}</span>
-                    <span className="teams-committee-title">எமது செயற்குழு</span>
+                    <span className="teams-committee-eyebrow">
+                        செயற்குழு · {COMMITTEE_YEAR}
+                    </span>
+                    <span className="teams-committee-title">
+                        எமது செயற்குழுவைச் சந்தியுங்கள்
+                    </span>
                     <span className="teams-committee-desc">
-                        மன்றத்தை வழிநடத்தும் {COMMITTEE_COUNT} பேர் கொண்ட செயற்குழுவைச் சந்தியுங்கள்.
+                        மன்றத்தின் ஒவ்வொரு நிகழ்வையும் முன்னின்று நடத்தும் {COMMITTEE_COUNT} பேர் கொண்ட அணி — பதவி வகிப்போர், இதழாசிரியர்கள், ஒருங்கிணைப்பாளர்கள்.
+                    </span>
+                    <span className="teams-committee-cta">
+                        செயற்குழுவைப் பார்க்க <FaArrowRight />
                     </span>
                 </div>
-                <span className="teams-committee-cta">
-                    பார்க்க <FaArrowRight />
-                </span>
+                <div className="teams-committee-fan" aria-hidden="true">
+                    {COMMITTEE_PREVIEW.map((m, i) => (
+                        <span
+                            key={m.name}
+                            className={`teams-committee-photo teams-committee-photo--${i}`}
+                        >
+                            <SmartImage
+                                src={m.photo}
+                                width={320}
+                                alt=""
+                                fallback={<span className="teams-committee-blank" />}
+                            />
+                        </span>
+                    ))}
+                    <span className="teams-committee-count">
+                        <b>{COMMITTEE_COUNT}</b> பேர்
+                    </span>
+                </div>
             </Link>
 
             {joinCfg.enabled && (
