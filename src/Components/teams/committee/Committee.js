@@ -1,14 +1,16 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowLeft, FaArrowRight, FaChevronLeft, FaChevronRight, FaTimes, FaExpand } from "react-icons/fa";
 import { SmartImage } from "../team-detail/media";
-import { COMMITTEE_GROUPS, COMMITTEE_YEAR, COMMITTEE_COUNT } from "./committeeData";
+import { useCommittee } from "../../../shared/committee";
+import { DEFAULT_FOCUS } from "./committeeData";
 import Crest from "../../../images/Logo-Nav/logo.png";
 import "./committee.css";
 
 const initials = (name) =>
-  name
+  String(name || "?")
     .split(/\s+/)
+    .filter(Boolean)
     .map((w) => w[0])
     .join("")
     .slice(0, 2)
@@ -16,8 +18,8 @@ const initials = (name) =>
 
 const pad2 = (n) => String(n).padStart(2, "0");
 
-// Photo widths asked from Drive. The viewer first shows the size the card
-// already loaded (so it appears at once), then fades in the sharper one.
+// Photo widths asked from Drive/Cloudinary. The viewer first shows the size
+// the card already loaded (so it appears at once), then fades in the sharper one.
 const W_XL = 820;
 const W_CARD = 600;
 const W_CIRCLE = 320;
@@ -25,11 +27,8 @@ const W_VIEWER = 1000;
 
 const cardWidth = (group, i) => (group.layout === "circles" ? W_CIRCLE : group.layout === "podium" && i === 0 ? W_XL : W_CARD);
 
-// Everyone in page order, so the photo viewer can step through the whole committee.
-const EVERYONE = COMMITTEE_GROUPS.flatMap((g) =>
-  g.members.map((m, i) => ({ ...m, group: g.title, cardWidth: cardWidth(g, i) }))
-);
-const indexOf = (member) => EVERYONE.findIndex((m) => m.name === member.name && m.photo === member.photo);
+// Keeps the chosen part of the photo in view (0 = top … 100 = bottom).
+const focusStyle = (m) => ({ objectPosition: `center ${m.photo_focus ?? DEFAULT_FOCUS}%` });
 
 const Blank = ({ name, className = "" }) => <span className={`cm-initials ${className}`}>{initials(name)}</span>;
 
@@ -59,44 +58,49 @@ function useInView() {
   return [ref, seen];
 }
 
-function PortraitCard({ member, onOpen, size = "md", style }) {
+// Also used by the admin's live preview (src/Pages/AdminCommittee.js).
+export function PortraitCard({ member, onOpen, size = "md", style }) {
   return (
-    <button type="button" className={`cm-portrait cm-portrait--${size}`} onClick={() => onOpen(member)} style={style}>
+    <button type="button" className={`cm-portrait cm-portrait--${size}`} onClick={() => onOpen && onOpen(member)} style={style}>
       <span className="cm-portrait-photo">
         <SmartImage
-          src={member.photo}
+          src={member.photo_url}
           width={size === "xl" ? W_XL : W_CARD}
           alt=""
+          style={focusStyle(member)}
           fallback={<Blank name={member.name} />}
         />
       </span>
       <span className="cm-portrait-shade" aria-hidden="true" />
-      {size === "xl" && <span className="cm-portrait-badge">{member.roleEn}</span>}
+      {size === "xl" && member.role_en && <span className="cm-portrait-badge">{member.role_en}</span>}
       <span className="cm-portrait-text">
         <span className="cm-portrait-name">{member.name}</span>
-        <span className="cm-portrait-role">{member.role}</span>
-        {size !== "xl" && <span className="cm-portrait-role-en">{member.roleEn}</span>}
+        {member.role && <span className="cm-portrait-role">{member.role}</span>}
+        {size !== "xl" && member.role_en && <span className="cm-portrait-role-en">{member.role_en}</span>}
       </span>
       <span className="cm-portrait-zoom" aria-hidden="true">
         <FaExpand />
       </span>
       <span className="cm-sr">
-        {member.name}, {member.roleEn}. View photo
+        {member.name}
+        {member.role_en ? `, ${member.role_en}` : ""}. View photo
       </span>
     </button>
   );
 }
 
-function CircleCard({ member, onOpen, style }) {
+export function CircleCard({ member, onOpen, style }) {
   return (
-    <button type="button" className="cm-circle" onClick={() => onOpen(member)} style={style}>
+    <button type="button" className="cm-circle" onClick={() => onOpen && onOpen(member)} style={style}>
       <span className="cm-circle-ring">
         <span className="cm-circle-photo">
-          <SmartImage src={member.photo} width={W_CIRCLE} alt="" fallback={<Blank name={member.name} />} />
+          <SmartImage src={member.photo_url} width={W_CIRCLE} alt="" style={focusStyle(member)} fallback={<Blank name={member.name} />} />
         </span>
       </span>
       <span className="cm-circle-name">{member.name}</span>
-      <span className="cm-sr">, {member.roleEn}. View photo</span>
+      <span className="cm-sr">
+        {member.role_en ? `, ${member.role_en}` : ""}. View photo
+      </span>
     </button>
   );
 }
@@ -135,7 +139,7 @@ function Group({ group, number, onOpen }) {
         {rest.length > 0 && (
           <div className="cm-row cm-row--lg">
             {rest.map((m, i) => (
-              <PortraitCard key={m.name} member={m} onOpen={onOpen} size="lg" style={stagger(i + 3)} />
+              <PortraitCard key={m.id} member={m} onOpen={onOpen} size="lg" style={stagger(i + 3)} />
             ))}
           </div>
         )}
@@ -145,7 +149,7 @@ function Group({ group, number, onOpen }) {
     body = (
       <div className="cm-circles">
         {group.members.map((m, i) => (
-          <CircleCard key={m.name} member={m} onOpen={onOpen} style={stagger(i)} />
+          <CircleCard key={m.id} member={m} onOpen={onOpen} style={stagger(i)} />
         ))}
       </div>
     );
@@ -153,7 +157,7 @@ function Group({ group, number, onOpen }) {
     body = (
       <div className="cm-row">
         {group.members.map((m, i) => (
-          <PortraitCard key={m.name} member={m} onOpen={onOpen} style={stagger(i)} />
+          <PortraitCard key={m.id} member={m} onOpen={onOpen} style={stagger(i)} />
         ))}
       </div>
     );
@@ -172,11 +176,11 @@ function Group({ group, number, onOpen }) {
   );
 }
 
-function Viewer({ index, onClose, onStep }) {
-  const member = EVERYONE[index];
+function Viewer({ people, index, onClose, onStep }) {
+  const member = people[index];
   const closeRef = useRef(null);
   const [sharp, setSharp] = useState("");
-  useEffect(() => setSharp(""), [member.photo]);
+  useEffect(() => setSharp(""), [member.id]);
 
   useEffect(() => {
     const onKey = (e) => {
@@ -207,34 +211,36 @@ function Viewer({ index, onClose, onStep }) {
   };
 
   return (
-    <div className="cm-viewer" role="dialog" aria-modal="true" aria-label={`${member.name}, ${member.roleEn}`} onClick={onClose}>
+    <div className="cm-viewer" role="dialog" aria-modal="true" aria-label={member.name} onClick={onClose}>
       <div className="cm-viewer-panel" onClick={(e) => e.stopPropagation()} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
         <div className="cm-viewer-photo">
           <SmartImage
-            key={`${member.photo}-quick`}
-            src={member.photo}
+            key={`${member.id}-quick`}
+            src={member.photo_url}
             width={member.cardWidth}
             alt=""
             loading="eager"
+            style={focusStyle(member)}
             fallback={<Blank name={member.name} className="cm-initials--big" />}
           />
           <SmartImage
-            key={`${member.photo}-sharp`}
-            src={member.photo}
+            key={`${member.id}-sharp`}
+            src={member.photo_url}
             width={W_VIEWER}
             alt={member.name}
             loading="eager"
-            className={`cm-viewer-sharp${sharp === member.photo ? " is-loaded" : ""}`}
-            onLoad={() => setSharp(member.photo)}
+            style={focusStyle(member)}
+            className={`cm-viewer-sharp${sharp === member.id ? " is-loaded" : ""}`}
+            onLoad={() => setSharp(member.id)}
           />
         </div>
         <div className="cm-viewer-info">
           <span className="cm-viewer-group">{member.group}</span>
           <span className="cm-viewer-name">{member.name}</span>
-          <span className="cm-viewer-role">{member.role}</span>
-          <span className="cm-viewer-role-en">{member.roleEn}</span>
+          {member.role && <span className="cm-viewer-role">{member.role}</span>}
+          {member.role_en && <span className="cm-viewer-role-en">{member.role_en}</span>}
           <span className="cm-viewer-count">
-            {index + 1} / {EVERYONE.length}
+            {index + 1} / {people.length}
           </span>
         </div>
         <button type="button" ref={closeRef} className="cm-viewer-close" onClick={onClose} aria-label="Close">
@@ -252,10 +258,26 @@ function Viewer({ index, onClose, onStep }) {
 }
 
 export default function Committee() {
-  const [open, setOpen] = useState(-1);
-  const onOpen = useCallback((member) => setOpen(indexOf(member)), []);
-  const onClose = useCallback(() => setOpen(-1), []);
-  const onStep = useCallback((d) => setOpen((i) => (i + d + EVERYONE.length) % EVERYONE.length), []);
+  const { year, intro, groups, count } = useCommittee();
+
+  // Everyone in page order, so the photo viewer can step through the whole committee.
+  const people = useMemo(
+    () => groups.flatMap((g) => g.members.map((m, i) => ({ ...m, group: g.title, cardWidth: cardWidth(g, i) }))),
+    [groups]
+  );
+
+  const [openId, setOpenId] = useState(null);
+  const index = openId ? people.findIndex((m) => m.id === openId) : -1;
+  const onOpen = useCallback((member) => setOpenId(member.id), []);
+  const onClose = useCallback(() => setOpenId(null), []);
+  const onStep = useCallback(
+    (d) =>
+      setOpenId((id) => {
+        const i = people.findIndex((m) => m.id === id);
+        return people[(i + d + people.length) % people.length].id;
+      }),
+    [people]
+  );
 
   return (
     <div className="cm">
@@ -286,13 +308,15 @@ export default function Committee() {
           <img src={Crest} alt="" className="cm-crest" width="88" height="88" />
           <span className="cm-eyebrow">தமிழ் இலக்கிய மன்றம் · மொறட்டுவைப் பல்கலைக்கழகம்</span>
           <h1 className="cm-title">செயற்குழு</h1>
-          <span className="cm-year">
-            <i aria-hidden="true" />
-            Committee {COMMITTEE_YEAR.replace("/", " / ")}
-            <i aria-hidden="true" />
-          </span>
+          {year && (
+            <span className="cm-year">
+              <i aria-hidden="true" />
+              Committee {year.replace("/", " / ")}
+              <i aria-hidden="true" />
+            </span>
+          )}
           <span className="cm-lede">
-            மன்றத்தின் ஒவ்வொரு நிகழ்வையும் முன்னின்று நடத்தும் எமது {COMMITTEE_COUNT} பேர் கொண்ட செயற்குழு.
+            {intro || `மன்றத்தின் ஒவ்வொரு நிகழ்வையும் முன்னின்று நடத்தும் எமது ${count} பேர் கொண்ட செயற்குழு.`}
           </span>
         </div>
         <svg className="cm-hero-edge" viewBox="0 0 1440 48" preserveAspectRatio="none" aria-hidden="true">
@@ -301,7 +325,7 @@ export default function Committee() {
       </header>
 
       <div className="cm-body">
-        {COMMITTEE_GROUPS.map((g, i) => (
+        {groups.map((g, i) => (
           <Group key={g.id} group={g} number={i + 1} onOpen={onOpen} />
         ))}
 
@@ -319,7 +343,7 @@ export default function Committee() {
         </aside>
       </div>
 
-      {open >= 0 && <Viewer index={open} onClose={onClose} onStep={onStep} />}
+      {index >= 0 && <Viewer people={people} index={index} onClose={onClose} onStep={onStep} />}
     </div>
   );
 }
