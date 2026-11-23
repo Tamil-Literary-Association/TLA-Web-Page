@@ -16,3 +16,4 @@ faq.sql
 homepage_wallpapers.sql
 site_status.sql
 analytics.sql
+committee.sql
