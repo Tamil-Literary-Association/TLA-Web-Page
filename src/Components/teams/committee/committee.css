@@ -1,0 +1,345 @@
+/* /teams/committee — the committee page. Everything is scoped to .cm because
+   other pages' bare h1/h2/p rules leak into every page (see teams.css). */
+
+.cm {
+  --cm-navy: #022345;
+  --cm-navy-2: #0c3466;
+  --cm-gold: #c8932f;
+  --cm-gold-2: #e6b422;
+  --cm-cream: #fbf6ec;
+  --cm-ink: #1d2433;
+  --cm-sans: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  background: var(--cm-cream);
+  color: var(--cm-ink);
+  padding-bottom: 72px;
+}
+
+.cm,
+.cm *,
+.cm *::before,
+.cm *::after {
+  box-sizing: border-box;
+}
+
+.cm :where(h1, h2, p, figure) {
+  margin: 0;
+  color: inherit;
+  font-size: inherit;
+  text-align: inherit;
+}
+
+/* ---- Hero ---------------------------------------------------------------- */
+
+.cm-hero {
+  position: relative;
+  overflow: hidden;
+  color: #fff;
+  text-align: center;
+  background:
+    radial-gradient(ellipse 60% 80% at 50% 0%, rgba(230, 180, 34, 0.22), transparent 70%),
+    linear-gradient(160deg, var(--cm-navy) 0%, var(--cm-navy-2) 100%);
+  padding: 56px 20px 64px;
+}
+
+/* faint kolam dots */
+.cm-hero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgba(230, 180, 34, 0.28) 1.4px, transparent 1.6px);
+  background-size: 26px 26px;
+  -webkit-mask-image: linear-gradient(180deg, #000, transparent 85%);
+  mask-image: linear-gradient(180deg, #000, transparent 85%);
+  pointer-events: none;
+}
+
+.cm-hero-inner {
+  position: relative;
+  max-width: 760px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+
+.cm-back {
+  align-self: flex-start;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.8);
+  text-decoration: none;
+  font-family: "Para", var(--cm-sans) !important;
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.cm-back:hover {
+  color: var(--cm-gold-2);
+}
+
+.cm-year {
+  font-family: var(--cm-sans);
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--cm-navy);
+  background: var(--cm-gold-2);
+  border-radius: 999px;
+  padding: 5px 16px;
+}
+
+.cm .cm-title {
+  font-family: "Heading", serif !important;
+  font-size: clamp(42px, 8vw, 64px);
+  line-height: 1.15;
+  color: #fff !important;
+  margin-top: 6px;
+}
+
+.cm-title-en {
+  font-family: var(--cm-sans);
+  font-size: 14px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--cm-gold-2);
+}
+
+.cm-lede {
+  font-family: "Para", var(--cm-sans) !important;
+  font-size: 18px;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  margin-top: 10px;
+}
+
+/* ---- Groups ---------------------------------------------------------------- */
+
+.cm-body {
+  max-width: 1120px;
+  margin: 0 auto;
+  padding: 0 20px;
+}
+
+.cm-group {
+  margin-top: 56px;
+}
+
+.cm-group--lead {
+  margin-top: -28px; /* lift the first group onto the hero */
+  position: relative;
+}
+
+.cm-group-head {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 26px;
+  text-align: center;
+}
+
+.cm-group--lead .cm-group-head {
+  background: var(--cm-cream);
+  border-radius: 999px;
+  padding: 10px 28px 6px;
+  width: max-content;
+  max-width: 100%;
+  margin: 0 auto 26px;
+  box-shadow: 0 6px 18px rgba(2, 35, 69, 0.12);
+}
+
+.cm .cm-group-title {
+  font-family: "Heading", serif !important;
+  font-size: clamp(26px, 4vw, 32px);
+  color: var(--cm-navy) !important;
+  line-height: 1.3;
+}
+
+.cm-group-sub {
+  font-family: var(--cm-sans);
+  font-size: 12px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--cm-gold);
+  font-weight: 600;
+}
+
+.cm-rule {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 6px;
+}
+
+.cm-rule::before,
+.cm-rule::after {
+  content: "";
+  width: 56px;
+  height: 1.5px;
+  background: linear-gradient(90deg, transparent, var(--cm-gold));
+}
+
+.cm-rule::after {
+  transform: scaleX(-1);
+}
+
+.cm-rule i {
+  width: 7px;
+  height: 7px;
+  background: var(--cm-gold);
+  transform: rotate(45deg);
+}
+
+.cm-group--lead .cm-rule {
+  display: none;
+}
+
+/* ---- Cards ----------------------------------------------------------------- */
+
+/* Flex rather than grid so a short last row (or a 3-person group) is centred. */
+.cm-grid {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 22px;
+}
+
+.cm-grid > .cm-card {
+  flex: 0 0 196px;
+}
+
+.cm-grid--lead {
+  margin-top: 22px;
+}
+
+.cm-featured-row {
+  display: flex;
+  justify-content: center;
+}
+
+.cm-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(2, 35, 69, 0.08);
+  border: 1px solid rgba(200, 147, 47, 0.25);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.cm-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 14px 30px rgba(2, 35, 69, 0.16);
+}
+
+.cm-card--featured {
+  width: min(300px, 100%);
+  border: 2px solid var(--cm-gold-2);
+  box-shadow: 0 16px 40px rgba(2, 35, 69, 0.2);
+}
+
+.cm-photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  background: linear-gradient(160deg, #e9edf3, #d6dde8);
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+}
+
+.cm-photo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 22%;
+  display: block;
+}
+
+.cm-initials {
+  font-family: var(--cm-sans);
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--cm-navy);
+  opacity: 0.5;
+}
+
+.cm-card figcaption {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 14px 12px 16px;
+  text-align: center;
+  border-top: 3px solid var(--cm-gold-2);
+}
+
+.cm-name {
+  font-family: var(--cm-sans);
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--cm-navy);
+  word-break: break-word;
+}
+
+.cm-role {
+  font-family: "Para", var(--cm-sans) !important;
+  font-size: 15px;
+  line-height: 1.5;
+  color: var(--cm-ink);
+}
+
+.cm-role-en {
+  font-family: var(--cm-sans);
+  font-size: 11px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--cm-gold);
+  font-weight: 600;
+}
+
+.cm-card--featured .cm-name {
+  font-size: 21px;
+}
+
+.cm-card--featured .cm-role {
+  font-size: 17px;
+}
+
+@media (max-width: 520px) {
+  .cm-hero {
+    padding: 40px 16px 56px;
+  }
+  .cm-body {
+    padding: 0 16px;
+  }
+  .cm-grid {
+    gap: 14px;
+  }
+  .cm-grid > .cm-card {
+    flex: 0 0 calc(50% - 7px);
+  }
+  .cm-card--featured {
+    width: min(240px, 100%);
+  }
+  .cm-name {
+    font-size: 15px;
+  }
+  .cm-role {
+    font-size: 13px;
+  }
+  .cm-role-en {
+    font-size: 10px;
+    letter-spacing: 1px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cm-card,
+  .cm-card:hover {
+    transition: none;
+    transform: none;
+  }
+}
