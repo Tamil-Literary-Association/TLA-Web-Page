@@ -32,17 +32,6 @@ export const COMMITTEE_GROUPS = [
     ],
   },
   {
-    id: "editors",
-    title: "இதழாசிரியர்கள்",
-    subtitle: "Editors",
-    layout: "cards",
-    members: [
-      { name: "Abeeth", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("19O3yiV19XawvdikDhgbTyo4hqMJqtmzy") },
-      { name: "Babenaiyaa", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("1oKCBgxXI33KC5PZ2Z57qxGj3jWAGuz7d") },
-      { name: "Geethasanchcharan", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("14984eKiiQR0W2utsBk8jHw25-lV-eyyW") },
-    ],
-  },
-  {
     id: "team-coordinators",
     title: "அணி ஒருங்கிணைப்பாளர்கள்",
     subtitle: "Team coordinators",
@@ -54,6 +43,17 @@ export const COMMITTEE_GROUPS = [
       { name: "Lisorthman", role: "ஊடக அணி ஒருங்கிணைப்பாளர்", roleEn: "Media Team Coordinator", photo: drive("13p4Dn9lme0fqTAhXtIIH9C8c49sNzVY-") },
       { name: "Thiruvarankan", role: "ஊடக அணி ஒருங்கிணைப்பாளர்", roleEn: "Media Team Coordinator", photo: drive("11xPz-3jPr7GIymkDSuLfE13Z5FaJIyeA") },
       { name: "Melshan", role: "அலங்கார ஒருங்கிணைப்பாளர்", roleEn: "Decoration Coordinator", photo: drive("1W7HuJCHJhUySJhCiMxw0Q9OSbLfdC_h6") },
+    ],
+  },
+  {
+    id: "editors",
+    title: "இதழாசிரியர்கள்",
+    subtitle: "Editors",
+    layout: "cards",
+    members: [
+      { name: "Abeeth", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("19O3yiV19XawvdikDhgbTyo4hqMJqtmzy") },
+      { name: "Babenaiyaa", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("1oKCBgxXI33KC5PZ2Z57qxGj3jWAGuz7d") },
+      { name: "Geethasanchcharan", role: "இதழாசிரியர்", roleEn: "Editor", photo: drive("14984eKiiQR0W2utsBk8jHw25-lV-eyyW") },
     ],
   },
   {
