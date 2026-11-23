@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { FaArrowLeft, FaArrowRight, FaChevronLeft, FaChevronRight, FaTimes, FaExpand } from "react-icons/fa";
 import { SmartImage } from "../team-detail/media";
@@ -257,11 +257,6 @@ export default function Committee() {
   const onClose = useCallback(() => setOpen(-1), []);
   const onStep = useCallback((d) => setOpen((i) => (i + d + EVERYONE.length) % EVERYONE.length), []);
 
-  const stats = useMemo(
-    () => COMMITTEE_GROUPS.map((g) => ({ id: g.id, label: g.title, n: g.members.length })),
-    []
-  );
-
   return (
     <div className="cm">
       <header className="cm-hero">
@@ -299,15 +294,6 @@ export default function Committee() {
           <span className="cm-lede">
             மன்றத்தின் ஒவ்வொரு நிகழ்வையும் முன்னின்று நடத்தும் எமது {COMMITTEE_COUNT} பேர் கொண்ட செயற்குழு.
           </span>
-
-          <nav className="cm-jump" aria-label="Committee groups">
-            {stats.map((s) => (
-              <a key={s.id} href={`#${s.id}`} className="cm-jump-item">
-                <b>{s.n}</b>
-                <span>{s.label}</span>
-              </a>
-            ))}
-          </nav>
         </div>
         <svg className="cm-hero-edge" viewBox="0 0 1440 48" preserveAspectRatio="none" aria-hidden="true">
           <path d="M0 48 L0 22 Q 60 0 120 22 T 240 22 T 360 22 T 480 22 T 600 22 T 720 22 T 840 22 T 960 22 T 1080 22 T 1200 22 T 1320 22 T 1440 22 L1440 48 Z" />
