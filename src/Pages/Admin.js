@@ -22,6 +22,7 @@ import {
   FaIdCard,
   FaCommentDots,
   FaChartLine,
+  FaUserTie,
 } from "react-icons/fa";
 
 import LotusDivider from "./LotusDivider";
@@ -37,6 +38,7 @@ import { fetchTeamJoinConfig } from "../shared/teamJoinConfig";
 import { fetchContactConfig } from "../shared/contactConfig";
 import { fetchWallpapers } from "../shared/wallpapers";
 import { fetchFaqs } from "../shared/faq/faqs";
+import { fetchCommittee } from "../shared/committee";
 import { fetchSiteStatus, isMaintenanceOn, formatReopen } from "../shared/siteStatus";
 import { fetchBookConfig, isSubmissionOpen } from "../book/bookConfig";
 import { fetchBooks } from "../book/books";
@@ -104,6 +106,9 @@ function useDashboardData(admin) {
       fetchFaqs()
         .then((list) => set("faqs", list))
         .catch(() => set("faqs", null));
+      fetchCommittee()
+        .then((c) => set("committee", c))
+        .catch(() => set("committee", null));
       supabase
         .from("members")
         .select("id", { count: "exact", head: true })
@@ -190,6 +195,14 @@ function faqStatus(list) {
   if (!list) return { tone: "off", text: "Not set up yet" };
   const shown = list.filter((f) => f.is_visible).length;
   return { tone: "info", text: `${shown} question${shown === 1 ? "" : "s"}${list.length > shown ? ` · ${list.length - shown} hidden` : ""}` };
+}
+
+function committeeStatus(c) {
+  if (c === undefined) return LOADING;
+  if (!c) return { tone: "off", text: "Not set up yet" };
+  const shown = c.members.filter((m) => m.is_visible).length;
+  const hidden = c.members.length - shown;
+  return { tone: "info", text: `${c.settings.year} · ${shown} people${hidden ? ` · ${hidden} hidden` : ""}` };
 }
 
 function maintenanceStatus(site) {
@@ -604,6 +617,15 @@ export default function Admin() {
                       title="Home wallpapers"
                       desc="Add, hide, reorder and delete the sliding home page pictures."
                       status={wallpaperStatus(data.wallpapers)}
+                      index={n++}
+                    />
+                    <Card
+                      to="/admin/committee"
+                      icon={FaUserTie}
+                      tone="gold"
+                      title="Committee"
+                      desc="Who is on the committee page: names, roles, photos and the year."
+                      status={committeeStatus(data.committee)}
                       index={n++}
                     />
                     <Card
