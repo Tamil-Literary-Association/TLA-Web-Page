@@ -46,6 +46,7 @@ const AdminMaintenance = lazy(() => import("./Pages/AdminMaintenance"));
 const AdminWallpapers = lazy(() => import("./Pages/AdminWallpapers"));
 const AdminFaq = lazy(() => import("./Pages/AdminFaq"));
 const AdminMembers = lazy(() => import("./Pages/AdminMembers"));
+const AdminCommittee = lazy(() => import("./Pages/AdminCommittee"));
 const AdminLogin = lazy(() => import("./Pages/AdminLogin"));
 const RequireAdmin = lazy(() => import("./Pages/RequireAdmin"));
 const AdminEditors = lazy(() => import("./Pages/AdminEditors"));
@@ -261,6 +262,14 @@ function Router() {
       element: (
         <RequireAdmin>
           <AdminMembers />
+        </RequireAdmin>
+      ),
+    },
+    {
+      path: "admin/committee",
+      element: (
+        <RequireAdmin>
+          <AdminCommittee />
         </RequireAdmin>
       ),
     },
